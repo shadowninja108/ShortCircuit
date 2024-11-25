@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <style>
+            body {
+                background-color: black;
+                color: white;
+            }
+
+            .spinner {
+                /* Center in page. */
+                position: absolute;
+                bottom: 50%;
+                left: 50%;
+                /* Haha spinny. */
+                animation: spin 2s linear infinite;
+            }
+
+            .crunch {
+                position: relative;
+                /* Cut out the whitespace in the special colon char. */
+                right: -12px;
+                margin-left: -12px;
+            }
+
+            .inline {
+                display: inline
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <span class="spinner">
+            <span id="colon" class="inline crunch">&#65109;</span>
+            <span class="inline">3</span>
+        </span>
+    </body>
+</html>

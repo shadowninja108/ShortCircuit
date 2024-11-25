@@ -1,6 +1,6 @@
-@ShortCircuit.Server_HostAddress = http://localhost:5224
+@ShortCircuit.Server_HostAddress = https://localhost:7052
 
-GET {{ShortCircuit.Server_HostAddress}}/weatherforecast/
-Accept: application/json
+
+POST {{ShortCircuit.Server_HostAddress}}/decode
 
 ###

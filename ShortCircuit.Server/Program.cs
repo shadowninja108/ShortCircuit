@@ -1,4 +1,7 @@
 
+using FirstStrike;
+using ShortCircuit.Server.Controllers;
+
 namespace ShortCircuit.Server
 {
     public class Program
@@ -6,34 +9,33 @@ namespace ShortCircuit.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Add services to the container.
-
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            // builder.Services.AddOpenApi();
 
             var app = builder.Build();
-
+            
             app.UseDefaultFiles();
             app.UseStaticFiles();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
+            /* HTTP? in 2024? Nah. */
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            /* Host Swagger UI so that people can easily read the API docs. Explicitly want to do this in prod. */
+            app.UseSwaggerUI();
 
+            /* Host OpenApi doc where Swashbuckle's SwaggerUI expects. */
+            // app
+            //     .MapOpenApi("swagger/v1/swagger.json")
+            //     .CacheOutput();
 
-            app.MapControllers();
+            /* Map our save API. */
+            app.MapSaveApi();
 
             app.MapFallbackToFile("/index.html");
+
+            /* Load dictionary for FirstStrike. */
+            HashDb.Load(new FileInfo("main.strings"));
 
             app.Run();
         }

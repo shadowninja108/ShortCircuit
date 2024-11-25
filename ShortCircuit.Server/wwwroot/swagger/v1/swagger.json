@@ -1,0 +1,170 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "ShortCircuit.Server | v1",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://shortcircuit.shadowo.lol/api"
+    }
+  ],
+  "paths": {
+    "/save/decode": {
+      "post": {
+        "summary": "Submit save.dat for decoding.",
+        "description": "Submit raw save.dat as the request body to decode and deserialize. If successful, responds with a model containing the entire deserialized save.",
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "format": "binary" 
+            } 
+          } 
+        },
+        "responses": {
+          "200": {
+            "description": "Successful decoding, returns the model containing the deserialized save.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "Type": {
+                      "$ref": "#/components/schemas/ResponseType"
+                    },
+                    "Value": {
+                      "$ref": "#/components/schemas/Save"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The save was fully received, but decoding/deserialization failed. Further info is provided in response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FailedResponse"
+                },
+                "example": {
+                  "Type": "SaveBad",
+                  "Message": "Save hash appears wrong, are you sure this is a Splatoon 3 save?"
+                } 
+              }
+            }
+          },
+          "419": {
+            "description": "File sent is too large to be a Splatoon 3 save. From reverse engineering, I observed the maximum size is 0x100000 bytes. If you believe this is incorrect, please create a GitHub issue and justify.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FailedResponse"
+                },
+                "example": {
+                  "Type": "SaveTooBig"
+                }
+              }
+            }
+          },
+          "499": {
+            "description": "File upload was cancelled.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FailedResponse"
+                },
+                "example": {
+                  "Type": "Cancelled"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An exception was thrown while trying to receive, decode, or deserialize the save. If encountered, please contact author as this is a bug.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FailedResponse"
+                },
+                "example": {
+                  "Type": "UnknownFailure"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/save/dictionary": {
+      "get": {
+        "summary": "Request dictionary used for decoding, for ease of use.",
+        "responses": {
+          "200": {
+            "description": "Successfully returns dictionary. Response is plain text list of strings split by newline."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResponseType": {
+        "description": "Generalized enum for errors. Designed for making programming decisions.",
+        "type": "string",
+        "enum": [
+          "Success",
+          "Cancelled",
+          "SaveBad",
+          "SaveTooBig",
+          "UnknownFailure"
+        ]
+      },
+      "FailedResponse": {
+        "type": "object",
+        "properties": {
+          "Type": {
+            "$ref": "#/components/schemas/ResponseType"
+          },
+          "Message": {
+            "description": "Description of error. Designed to be shown to the user.",
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Save.BodyHeader": {
+        "description": "Information acquired from the decrypted body's header.",
+        "type": "object",
+        "properties": {
+          "Version": {
+            "type": "integer",
+            "description": "Version of the save spec. Only known version is 4.",
+            "example": "4" 
+          },
+          "GameVersion": {
+            "type": "integer",
+            "description": "Version of Splatoon 3 that saved the file. Version components are packed per byte. Example decodes to version \"7.1.0\".",
+            "example": "459008"
+          } 
+        }
+      },
+      "Save":{
+        "description": "Model to describe decoded save.",
+        "type": "object",
+        "properties": {
+          "BodyHeader": {
+            "$ref": "#/components/schemas/Save.BodyHeader"
+          },
+          "Models": {
+            "description": "Deserialized files from save. Order of files is preserved. Generally there is only two files, those being the client and server.",
+            "type": "array",
+            "items": {
+              "type": "object" 
+            }
+          } 
+        }
+      } 
+    } 
+  }
+}
