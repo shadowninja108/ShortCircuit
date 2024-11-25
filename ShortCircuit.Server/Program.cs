@@ -11,7 +11,6 @@ namespace ShortCircuit.Server
             var builder = WebApplication.CreateBuilder(args);
             
             builder.Services.AddEndpointsApiExplorer();
-            // builder.Services.AddOpenApi();
 
             var app = builder.Build();
             
@@ -23,11 +22,6 @@ namespace ShortCircuit.Server
 
             /* Host Swagger UI so that people can easily read the API docs. Explicitly want to do this in prod. */
             app.UseSwaggerUI();
-
-            /* Host OpenApi doc where Swashbuckle's SwaggerUI expects. */
-            // app
-            //     .MapOpenApi("swagger/v1/swagger.json")
-            //     .CacheOutput();
 
             /* Map our save API. */
             app.MapSaveApi();
